@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: tPd9/jBxZRI9m2ER2TLl+eEO/RWBKo2t8/Cw3+zqX/H6BhKUHrs9jBIUSLSltlrBEwJOTR7+PcAJzVt2iRcFHt/UuAvqaWe8EhN6LR8VRf4AFjO7vezi485Lw7c0nXw/aVEmhY/Tzvka+kYQWG8DoCBOPJ7LwLaScrxAnh3HqkZEivVTCz747E6tD/s5uPNYRp1BpjJfsjRKrmUNZzCH93ymqFTUbpHjdRvpm+dvAOC6rrIZJeEz7du3ATCYxjUuqN+DZ4TCTifcOfo/rM3keblJCOaSWrEuJNGgDp4hsuyLqnOXMokNs02qA7VO4yAqUzYlc+/dXJ2jOjXGu/6UY0J6Cnl9wB9PeHwlGXc+Zb3504V/61EhPKdfGaVv3goXgJvFjpH8ZBhPoYnm95IWhG82jOb4ji4e9kyxjP2QewDGfoMksCtIhdHqJO4z1fan2Nlz/DGiwISxxM4nCYhlgSOOjAeRHwEAsjAfU6dkvts0ztjjRRtXu384EPjTq4ZD4OTVvMnPUwKBpflIjP4U6yHDezzg8BT6iKX4tK4W5O+50Mjhx3jIPgRhN00Fuvq5nGVVUUgWGAiPm30X44ug5tmCtqLfAaBjNWBHeFZGiGdzW/1YnpMwcnGkOkYgmJel6kv+Aeo/hA1ONma8ayxOfYxz8k0CdyKoFNlm2gPvXMY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-French-Revolution---Volume-1_2578
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
